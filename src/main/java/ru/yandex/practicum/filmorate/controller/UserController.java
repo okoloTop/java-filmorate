@@ -15,14 +15,30 @@ public class UserController {
     protected int assignmentId = 0;
     protected HashMap<Integer, User> users = new HashMap<>();
 
+    @GetMapping("/users")
+    public ArrayList<User> homePage() {
+        log.debug("Получен запрос GET /users.");
+        return getAllUsers();
+    }
+
+    @PostMapping("/users")
+    public User create(@RequestBody User user) {
+        log.debug("Получен запрос POST /users.");
+        return createUser(user);
+    }
+
+    @PutMapping("/users")
+    public User update(@RequestBody User user) {
+        log.debug("Получен запрос PUT /users.");
+        return updateUser(user);
+    }
+
     public User createUser(User user) {
-        if (isValid(user)) {
-            user.setId(++assignmentId);
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            throw new ValidationException("Пользователь " + user.getName() + " не будет добавлен,проверьте правильность введенных данных");
-        }
+        isValid(user);
+        user.setId(++assignmentId);
+        users.put(user.getId(), user);
+        log.debug("Добавлен пользователь: {}; его ID: {}; всего пользователей в базе: {}", user.getName(), user.getId(), users.size());
+        return user;
     }
 
     public ArrayList<User> getAllUsers() {
@@ -41,46 +57,24 @@ public class UserController {
         if (!users.containsKey(user.getId())) {
             throw new ValidationException("Пользователь c id" + user.getId() + " не найден");
         }
-        if (isValid(user)) {
-            users.put(user.getId(), user);
-            return users.get(user.getId());
-        } else {
-            throw new ValidationException("Пользователь " + user.getName() + " не будет добавлен,проверьте правильность введенных данных");
-        }
+        isValid(user);
+        users.put(user.getId(), user);
+        log.debug("Обновлен пользователь: {}; его ID: {}; всего пользователей в базе: {}", user.getName(), user.getId(), users.size());
+        return users.get(user.getId());
     }
 
-    public boolean isValid(User user) {
-        Boolean valid = true;
+    public void isValid(User user) {
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            return valid = false;
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
         if (StringUtils.containsWhitespace(user.getLogin()) || user.getLogin().isBlank() || user.getLogin() == null) {
-            return valid = false;
+            throw new ValidationException("логин не может быть пустым и содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now()) || user.getBirthday() == null) {
-            return valid = false;
+            throw new ValidationException("Дата рождения не может быть в будущем");
         }
-        return valid;
-    }
-
-    @GetMapping("/users")
-    public ArrayList<User> homePage() {
-        log.debug("Получен запрос GET /users.");
-        return getAllUsers();
-    }
-
-    @PostMapping("/users")
-    public User create(@RequestBody User user) {
-        log.debug("Получен запрос POST /users.");
-        return createUser(user);
-    }
-
-    @PutMapping("/users")
-    public User update(@RequestBody User user) {
-        log.debug("Получен запрос PUT /users.");
-        return updateUser(user);
     }
 }
