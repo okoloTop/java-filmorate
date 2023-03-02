@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class UserControllerTest {
-    UserController userController;
+    InMemoryUserStorage inMemoryUserStorage;
     User user;
 
     @BeforeEach
     void initFilmController() {
-        userController = new UserController();
+        inMemoryUserStorage = new InMemoryUserStorage();
     }
 
     @Test
@@ -28,8 +28,8 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
-        assertEquals(1,userController.getAllUsers().size());
+        inMemoryUserStorage.createUser(user);
+        assertEquals(1,inMemoryUserStorage.getAllUsers().size());
     }
     @Test
     void updateUser() {
@@ -39,7 +39,7 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
+        inMemoryUserStorage.createUser(user);
         User user2 = User.builder()
                 .id(1)
                 .name("Тест2")
@@ -48,8 +48,8 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(1974, 12, 3))
                 .build();
         user = user2;
-        userController.updateUser(user);
-        assertEquals(1, userController.getAllUsers().size());
+        inMemoryUserStorage.updateUser(user);
+        assertEquals(1, inMemoryUserStorage.getAllUsers().size());
         assertEquals(user.getLogin(),user2.getLogin());
     }
     @Test
@@ -61,7 +61,7 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
         Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
+            inMemoryUserStorage.createUser(user);
         });
         assertNotNull(thrown.getMessage());
     }
@@ -74,7 +74,7 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
         Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
+            inMemoryUserStorage.createUser(user);
         });
         assertNotNull(thrown.getMessage());
     }
@@ -86,7 +86,7 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
+        inMemoryUserStorage.createUser(user);
         assertEquals(user.getName(),user.getLogin());
     }
     @Test
@@ -98,7 +98,7 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(2023, 12, 3))
                 .build();
         Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
+            inMemoryUserStorage.createUser(user);
         });
         assertNotNull(thrown.getMessage());
     }

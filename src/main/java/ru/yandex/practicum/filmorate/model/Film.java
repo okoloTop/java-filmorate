@@ -17,4 +17,6 @@ public class Film {
     private LocalDate releaseDate;
 
     private Integer duration;
+
+    private Integer rate;
 }
