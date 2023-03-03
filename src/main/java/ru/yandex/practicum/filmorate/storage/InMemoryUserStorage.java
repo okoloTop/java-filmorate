@@ -2,11 +2,8 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,8 +17,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        valid(user);
         user.setId(++assignmentId);
+        if(user.getName() == null || user.getName().isBlank()){
+            user.setName(user.getLogin());
+        }
         users.put(user.getId(), user);
         user.setLikes(new HashSet<>());
         user.setFriends(new HashSet<>());
@@ -47,7 +46,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             throw new NullPointerException("Пользователь c id" + user.getId() + " не найден");
         }
-        valid(user);
         if (user.getLikes() == null) {
             user.setLikes(new HashSet<>());
         }
@@ -66,20 +64,5 @@ public class InMemoryUserStorage implements UserStorage {
         }
         log.debug("Получен пользователь c  ID: {}; ",id);
         return users.get(id);
-    }
-
-    private void valid(User user) {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
-        }
-        if (StringUtils.containsWhitespace(user.getLogin()) || user.getLogin().isBlank() || user.getLogin() == null) {
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now()) || user.getBirthday() == null) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
     }
 }

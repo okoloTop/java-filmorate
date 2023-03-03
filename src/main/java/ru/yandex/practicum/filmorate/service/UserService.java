@@ -25,10 +25,12 @@ public class UserService {
         if (userStorage.getUserById(userId) == null || userStorage.getUserById(friendId) == null) {
             throw new NullPointerException("Пользователя нет в базе, проверьте id пользователя");
         }
-        if (!userStorage.getUserById(userId).getFriends().contains(friendId)) {
-            userStorage.getUserById(userId).getFriends().add(friendId);
-            userStorage.getUserById(friendId).getFriends().add(userId);
-            log.debug("Пользователь c  ID: {}; добавил в друзья пользователя с ID: {}",userId,friendId);
+        final User user = userStorage.getUserById(userId);
+        final User friend = userStorage.getUserById(friendId);
+        if (!user.getFriends().contains(friendId)) {
+            user.getFriends().add(friendId);
+            friend.getFriends().add(userId);
+            log.debug("Пользователь c  ID: {}; добавил в друзья пользователя с ID: {}", userId, friendId);
         } else {
             throw new ValidationException("Вы уже добавили в друзья этого пользователя с id " + friendId);
         }
@@ -38,7 +40,7 @@ public class UserService {
         if (userStorage.getUserById(userId).getFriends().contains(friendId)) {
             userStorage.getUserById(userId).getFriends().remove(friendId);
             userStorage.getUserById(friendId).getFriends().remove(userId);
-            log.debug("Пользователь c  ID: {}; удалил из друзей пользователя с ID: {}",userId,friendId);
+            log.debug("Пользователь c  ID: {}; удалил из друзей пользователя с ID: {}", userId, friendId);
         } else {
             throw new ValidationException("У вас нет пользователя с id " + friendId + " в друзьях");
         }
@@ -50,7 +52,7 @@ public class UserService {
         for (Integer s : user.getFriends()) {
             friend.add(userStorage.getUserById(s));
         }
-        log.debug("Получен список всех друзей пользователя c  ID: {};",userId);
+        log.debug("Получен список всех друзей пользователя c  ID: {};", userId);
         return friend;
     }
 
@@ -62,7 +64,24 @@ public class UserService {
                 commonFriend.add(userStorage.getUserById(s));
             }
         }
-        log.debug("Получен список общих друзей пользователя c  ID: {}; и пользователя с ID: {}",userId,friendId);
+        log.debug("Получен список общих друзей пользователя c  ID: {}; и пользователя с ID: {}", userId, friendId);
         return commonFriend;
     }
+
+    public User createUser(User user) {
+        return userStorage.createUser(user);
+    }
+
+    public ArrayList<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
+
+    public User getUserById(Integer id) {
+        return userStorage.getUserById(id);
+    }
+
 }

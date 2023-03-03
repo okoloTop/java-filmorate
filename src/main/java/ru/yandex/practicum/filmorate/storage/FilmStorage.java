@@ -10,6 +10,7 @@ public interface FilmStorage {
     ArrayList<Film> getAllFilms();
 
     Film updateFilm(Film film);
+
     Film getFilmById(Integer id);
 
 }
