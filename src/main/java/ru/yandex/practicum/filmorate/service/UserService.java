@@ -38,8 +38,10 @@ public class UserService {
 
     public void deleteFriend(Integer userId, Integer friendId) {
         if (userStorage.getUserById(userId).getFriends().contains(friendId)) {
-            userStorage.getUserById(userId).getFriends().remove(friendId);
-            userStorage.getUserById(friendId).getFriends().remove(userId);
+            final User user = userStorage.getUserById(userId);
+            final User friend = userStorage.getUserById(friendId);
+            user.getFriends().remove(friendId);
+            friend.getFriends().remove(userId);
             log.debug("Пользователь c  ID: {}; удалил из друзей пользователя с ID: {}", userId, friendId);
         } else {
             throw new ValidationException("У вас нет пользователя с id " + friendId + " в друзьях");
@@ -58,9 +60,10 @@ public class UserService {
 
     public List<User> getCommonFriend(Integer userId, Integer friendId) {
         List<User> commonFriend = new ArrayList<>();
-        User user = userStorage.getUserById(userId);
+        final User user = userStorage.getUserById(userId);
+        final User friend = userStorage.getUserById(friendId);
         for (Integer s : user.getFriends()) {
-            if (userStorage.getUserById(friendId).getFriends().contains(s)) {
+            if (friend.getFriends().contains(s)) {
                 commonFriend.add(userStorage.getUserById(s));
             }
         }
