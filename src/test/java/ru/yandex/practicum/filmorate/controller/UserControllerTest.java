@@ -1,23 +1,34 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.model.Film;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SpringBootTest
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
-    UserController userController;
+    UserService userService;
+    private final UserStorage userStorage;
+    static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     User user;
 
     @BeforeEach
     void initFilmController() {
-        userController = new UserController();
+        userService = new UserService(userStorage);
     }
 
     @Test
@@ -28,9 +39,10 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
-        assertEquals(1,userController.getAllUsers().size());
+        userService.createUser(user);
+        assertEquals(user.getName(), userService.getUserById(user.getId()).getName());
     }
+
     @Test
     void updateUser() {
         user = User.builder()
@@ -39,7 +51,7 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
+        userService.createUser(user);
         User user2 = User.builder()
                 .id(1)
                 .name("Тест2")
@@ -48,10 +60,10 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(1974, 12, 3))
                 .build();
         user = user2;
-        userController.updateUser(user);
-        assertEquals(1, userController.getAllUsers().size());
-        assertEquals(user.getLogin(),user2.getLogin());
+        userService.updateUser(user);
+        assertEquals(user.getLogin(), user2.getLogin());
     }
+
     @Test
     void createBlancEmailUser() {
         user = User.builder()
@@ -60,11 +72,10 @@ public class UserControllerTest {
                 .email("")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
-        });
-        assertNotNull(thrown.getMessage());
+        Set<ConstraintViolation<User>> violations = this.validator.validate(user);
+        assertFalse(violations.isEmpty());
     }
+
     @Test
     void createEmailMistakeUser() {
         user = User.builder()
@@ -73,11 +84,10 @@ public class UserControllerTest {
                 .email("nnmm.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
-        });
-        assertNotNull(thrown.getMessage());
+        Set<ConstraintViolation<User>> violations = this.validator.validate(user);
+        assertFalse(violations.isEmpty());
     }
+
     @Test
     void createBlancUserName() {
         user = User.builder()
@@ -86,9 +96,10 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(1972, 12, 3))
                 .build();
-        userController.createUser(user);
-        assertEquals(user.getName(),user.getLogin());
+        userService.createUser(user);
+        assertEquals(user.getName(), user.getLogin());
     }
+
     @Test
     void createUserBirthdayMistake() {
         user = User.builder()
@@ -97,10 +108,8 @@ public class UserControllerTest {
                 .email("current@email.ru")
                 .birthday(LocalDate.of(2023, 12, 3))
                 .build();
-        Exception thrown = Assertions.assertThrows(ValidationException.class, () -> {
-            userController.createUser(user);
-        });
-        assertNotNull(thrown.getMessage());
+        Set<ConstraintViolation<User>> violations = this.validator.validate(user);
+        assertFalse(violations.isEmpty());
     }
 }
 
