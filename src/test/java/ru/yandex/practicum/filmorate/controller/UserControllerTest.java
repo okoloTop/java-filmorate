@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -19,12 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
     UserService userService;
     private final UserStorage userStorage;
     static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     User user;
+
+    public UserControllerTest(@Qualifier("inMemoryUserStorage")UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
 
     @BeforeEach
     void initFilmController() {
