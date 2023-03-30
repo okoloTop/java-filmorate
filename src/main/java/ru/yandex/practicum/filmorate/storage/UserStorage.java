@@ -11,7 +11,7 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    User getUserById (Integer id);
+    User getUserById(Integer id);
 
     public List<User> getCommonFriend(Integer userId, Integer friendId);
 
