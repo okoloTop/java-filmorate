@@ -58,8 +58,8 @@ public class FilmService {
         return filmStorage.updateFilm(film);
     }
 
-    public Film getFilmById(Integer id) {
-        return filmStorage.getFilmById(id);
+    public Film getFilmById(Integer filmId) {
+        return filmStorage.getFilmById(filmId);
     }
 
     public List<Genre> getAllGenres() {
