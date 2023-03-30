@@ -122,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
         //log.debug("Получен список самых популярных фильмов, размер списка COUNT: {};", count);
         String sql = "SELECT * FROM FILMS ORDER BY RATE DESC";
         List<Film> popularFilm = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
-        if(count > popularFilm.size()) {
+        if (count > popularFilm.size()) {
             return popularFilm;
         } else {
             return popularFilm.subList(0, count);
@@ -156,7 +156,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ? ;";
         List<Genre> genres = jdbcTemplate.query(sql,
                 (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME")), genreId);
-        if(genres.size() > 0) {
+        if (genres.size() > 0) {
             return genres.get(0);
         }
         throw new NullPointerException("Жанр с таким id не найден");
@@ -174,7 +174,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT * FROM RATINGS WHERE RATING_ID = ? ;";
         List<MPA> mpa = jdbcTemplate.query(sql,
                 (rs, rowNum) -> new MPA(rs.getInt("RATING_ID"), rs.getString("NAME")), id);
-        if(mpa.size() > 0) {
+        if (mpa.size() > 0) {
             return mpa.get(0);
         }
         throw new NullPointerException("Жанр с таким id не найден");

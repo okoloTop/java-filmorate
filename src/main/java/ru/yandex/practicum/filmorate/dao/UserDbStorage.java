@@ -94,7 +94,7 @@ public class UserDbStorage implements UserStorage {
     public User getUserById(Integer id) {
         String sql = "SELECT * FROM USERS WHERE USER_ID = ? ;";
         List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
-        if(users.size() < 1) {
+        if (users.size() < 1) {
             throw new NullPointerException("Пользователя с таким id нет в базе");
         }
         return users.get(0);
