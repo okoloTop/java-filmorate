@@ -26,9 +26,7 @@ import java.util.Set;
 @Component
 @Qualifier("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
     private UserStorage userStorage;
     private final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
 
@@ -60,8 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement prSt = connection.prepareStatement(
-                            sql
-                            , new String[]{"film_id"});
+                            sql, new String[]{"film_id"});
                     prSt.setString(1, film.getName());
                     prSt.setString(2, film.getDescription());
                     prSt.setInt(3, film.getDuration());
@@ -69,8 +66,7 @@ public class FilmDbStorage implements FilmStorage {
                     prSt.setInt(5, film.getRate() == null ? 0 : film.getRate());
                     prSt.setInt(6, film.getMpa().getId());
                     return prSt;
-                }
-                , keyHolder);
+                }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
         saveGenres(film);
         log.debug("Создан фильм:{}.", film.getName());
@@ -90,13 +86,13 @@ public class FilmDbStorage implements FilmStorage {
             getFilmById(film.getId());
             String sql = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, DURATION = ?, RELEASE_DATE = ?, RATING_ID = ? " +
                     " WHERE FILM_ID = ? ";
-            jdbcTemplate.update(sql
-                    , film.getName()
-                    , film.getDescription()
-                    , film.getDuration()
-                    , Date.valueOf(film.getReleaseDate())
-                    , film.getMpa().getId()
-                    , film.getId()
+            jdbcTemplate.update(sql,
+                    film.getName(),
+                    film.getDescription(),
+                    film.getDuration(),
+                    Date.valueOf(film.getReleaseDate()),
+                    film.getMpa().getId(),
+                    film.getId()
             );
             saveGenres(film);
         } catch (NullPointerException e) {
@@ -119,15 +115,14 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID IN (SELECT GENRE_ID FROM FILM_GENRES WHERE FILM_ID = ?) " +
                 " ORDER BY GENRE_ID;";
         return jdbcTemplate.query(sql,
-                (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"))
-                , filmId);
+                (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME")), filmId);
     }
 
     public List<Film> findAllPopular(Integer count) {
         //log.debug("Получен список самых популярных фильмов, размер списка COUNT: {};", count);
         String sql = "SELECT * FROM FILMS ORDER BY RATE DESC";
         List<Film> popularFilm = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
-        if (count > popularFilm.size()) {
+        if(count > popularFilm.size()) {
             return popularFilm;
         } else {
             return popularFilm.subList(0, count);
@@ -160,9 +155,8 @@ public class FilmDbStorage implements FilmStorage {
     public Genre getGenreById(Integer genreId) {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ? ;";
         List<Genre> genres = jdbcTemplate.query(sql,
-                (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"))
-                , genreId);
-        if (genres.size() > 0) {
+                (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME")), genreId);
+        if(genres.size() > 0) {
             return genres.get(0);
         }
         throw new NullPointerException("Жанр с таким id не найден");
@@ -179,9 +173,8 @@ public class FilmDbStorage implements FilmStorage {
     public MPA getMpaById(Integer id) {
         String sql = "SELECT * FROM RATINGS WHERE RATING_ID = ? ;";
         List<MPA> mpa = jdbcTemplate.query(sql,
-                (rs, rowNum) -> new MPA(rs.getInt("RATING_ID"), rs.getString("NAME"))
-                , id);
-        if (mpa.size() > 0) {
+                (rs, rowNum) -> new MPA(rs.getInt("RATING_ID"), rs.getString("NAME")), id);
+        if(mpa.size() > 0) {
             return mpa.get(0);
         }
         throw new NullPointerException("Жанр с таким id не найден");
@@ -201,15 +194,13 @@ public class FilmDbStorage implements FilmStorage {
     public void likeFilm(Integer id, Integer userId) {
         String sql = "insert into likes (FILM_ID, USER_ID) " +
                 " VALUES(? , ?)";
-        jdbcTemplate.update(sql
-                , id
-                , userId
-        );
+        jdbcTemplate.update(sql, id, userId);
         log.debug("Пользователь c  ID: {}; поставил лайк фильму с ID: {}", userId, id);
         Film film = getFilmById(id);
         film.setRate(film.getRate() + 1);
         updateFilm(film);
     }
+
     private void saveGenres(Film film) {
         int filmId = film.getId();
         if (getFilmGenres(filmId).size() > 0) {
@@ -218,13 +209,14 @@ public class FilmDbStorage implements FilmStorage {
         }
         if (film.getGenres() != null) {
             final Set<Integer> filmGenresId = new HashSet<>();
-            for(Genre g :film.getGenres()){
+            for (Genre g : film.getGenres()) {
                 filmGenresId.add(g.getId());
             }
             String sql = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
             for (Integer genreId : filmGenresId) {
                 jdbcTemplate.update(sql, filmId, genreId);
             }
-        }film.setGenres(getFilmGenres(film.getId()));
+        }
+        film.setGenres(getFilmGenres(film.getId()));
     }
 }

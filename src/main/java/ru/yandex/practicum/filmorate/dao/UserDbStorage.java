@@ -53,15 +53,13 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement prSt = connection.prepareStatement(
-                            sql
-                            , new String[]{"user_id"});
+                            sql, new String[]{"user_id"});
                     prSt.setString(1, user.getEmail());
                     prSt.setString(2, user.getLogin());
                     prSt.setString(3, user.getName());
                     prSt.setDate(4, Date.valueOf(user.getBirthday()));
                     return prSt;
-                }
-                , keyHolder);
+                }, keyHolder);
         user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return user;
     }
@@ -79,12 +77,12 @@ public class UserDbStorage implements UserStorage {
             String sql = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? " +
                     " WHERE USER_ID = ?;";
 
-            jdbcTemplate.update(sql
-                    , user.getEmail()
-                    , user.getLogin()
-                    , user.getName()
-                    , Date.valueOf(user.getBirthday())
-                    , user.getId()
+            jdbcTemplate.update(sql,
+                    user.getEmail(),
+                    user.getLogin(),
+                    user.getName(),
+                    Date.valueOf(user.getBirthday()),
+                    user.getId()
             );
             return user;
         } catch (ValidationException exception) {
@@ -96,7 +94,7 @@ public class UserDbStorage implements UserStorage {
     public User getUserById(Integer id) {
         String sql = "SELECT * FROM USERS WHERE USER_ID = ? ;";
         List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
-        if (users.size() < 1) {
+        if(users.size() < 1) {
             throw new NullPointerException("Пользователя с таким id нет в базе");
         }
         return users.get(0);
