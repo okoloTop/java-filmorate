@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -18,18 +20,26 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private  GenreStorage genreStorage;
+    private  MpaStorage mpaStorage;
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(@Autowired @Qualifier("filmDbStorage") FilmStorage filmStorage, @Autowired
-    @Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage, GenreStorage genreStorage,
+                       MpaStorage mpaStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
+    }
+    public FilmService(FilmStorage filmStorage,UserStorage userStorage){
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public void likeFilm(Integer id, Integer userId) {
-       filmStorage.likeFilm(id, userId);
+        filmStorage.likeFilm(id, userId);
     }
 
     public List<Film> findAllPopular(Integer count) {
@@ -37,7 +47,7 @@ public class FilmService {
     }
 
     public void deleteLikeFilm(Integer id, Integer userId) {
-      filmStorage.deleteLikeFilm(id, userId);
+        filmStorage.deleteLikeFilm(id, userId);
     }
 
     public Film createFilm(Film film) {
@@ -63,18 +73,18 @@ public class FilmService {
     }
 
     public List<Genre> getAllGenres() {
-        return filmStorage.getAllGenres();
+        return genreStorage.getAllGenres();
     }
 
     public Genre getGenreById(Integer genreId) {
-        return filmStorage.getGenreById(genreId);
+        return genreStorage.getGenreById(genreId);
     }
 
     public List<MPA> getAllMpa() {
-        return filmStorage.getAllMpa();
+        return mpaStorage.getAllMpa();
     }
 
     public MPA getMpaById(Integer mpaId) {
-        return filmStorage.getMpaById(mpaId);
+        return mpaStorage.getMpaById(mpaId);
     }
 }

@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -15,7 +13,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class FilmController {
-
     private final FilmService filmService;
 
     @GetMapping("/films")
@@ -60,30 +57,6 @@ public class FilmController {
     public void deleteLikeFilm(@PathVariable("id") Integer filmId, @PathVariable("userId") Integer userId) {
         log.debug("Получен запрос DELETE /films/{id}/like/{userId}.");
         filmService.deleteLikeFilm(filmId, userId);
-    }
-
-    @GetMapping("/genres")
-    public List<Genre> getGenres() {
-        log.debug("Получен запрос GET /genres.");
-        return filmService.getAllGenres();
-    }
-
-    @GetMapping("/genres/{id}")
-    public Genre getGenre(@PathVariable("id") Integer genreId) {
-        log.debug("Получен запрос GET /genres/{id}.");
-        return filmService.getGenreById(genreId);
-    }
-
-    @GetMapping("/mpa")
-    public List<MPA> getMPA() {
-        log.debug("Получен запрос GET /mpa.");
-        return filmService.getAllMpa();
-    }
-
-    @GetMapping("/mpa/{id}")
-    public MPA getMPA(@PathVariable("id") Integer genreId) {
-        log.debug("Получен запрос GET /mpa/{id}.");
-        return filmService.getMpaById(genreId);
     }
 }
 

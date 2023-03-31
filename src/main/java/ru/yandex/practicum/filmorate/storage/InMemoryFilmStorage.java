@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -97,25 +95,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else {
             throw new ValidationException("Вы не ставили лайк этому фильму");
         }
-    }
-
-    @Override
-    public List<Genre> getAllGenres() {
-        return null;
-    }
-
-    @Override
-    public Genre getGenreById(Integer genreId) {
-        return null;
-    }
-
-    @Override
-    public List<MPA> getAllMpa() {
-        return null;
-    }
-
-    @Override
-    public MPA getMpaById(Integer id) {
-        return null;
     }
 }

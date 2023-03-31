@@ -23,6 +23,8 @@ public class FilmControllerTest {
     FilmService filmService;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+
+
     static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     Film film;
 
