@@ -7,11 +7,10 @@ import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.util.List;
+
 @Component
 public class MpaDbStorage implements MpaStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
