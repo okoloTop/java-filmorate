@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -29,4 +30,8 @@ public class Film {
     private Integer duration;
 
     private Integer rate;
+
+    private MPA mpa;
+
+    private List<Genre> genres;
 }

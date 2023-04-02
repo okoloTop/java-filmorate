@@ -2,62 +2,53 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private  GenreStorage genreStorage;
+    private  MpaStorage mpaStorage;
     private final UserStorage userStorage;
-    public static final Comparator<Film> FILM_COMPARATOR = Comparator.comparingInt(Film::getRate).reversed();
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage, GenreStorage genreStorage,
+                       MpaStorage mpaStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
+    }
 
+    public FilmService(FilmStorage filmStorage,UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public void likeFilm(Integer id, Integer userId) {
-        Film film = filmStorage.getFilmById(id);
-        if (!userStorage.getUserById(userId).getLikes().contains(id)) {
-            film.setRate(film.getRate() + 1);
-            userStorage.getUserById(userId).getLikes().add(id);
-            log.debug("Пользователь c  ID: {}; удалил свой лайк фильму с ID: {}", userId, id);
-        } else {
-            throw new ValidationException("Вы уже ставили лайк этому фильму");
-        }
+        filmStorage.likeFilm(id, userId);
     }
 
     public List<Film> findAllPopular(Integer count) {
-        log.debug("Получен список самых популярных фильмов, размер списка COUNT: {};", count);
-        List<Film> popularFilm = filmStorage.getAllFilms();
-        popularFilm.sort(FILM_COMPARATOR);
-        if (count > popularFilm.size()) {
-            return popularFilm;
-        } else {
-            return popularFilm.subList(0, count);
-        }
+        return filmStorage.findAllPopular(count);
     }
 
     public void deleteLikeFilm(Integer id, Integer userId) {
-        Film film = filmStorage.getFilmById(id);
-        if (userStorage.getUserById(userId).getLikes().contains(id)) {
-            film.setRate(film.getRate() - 1);
-            userStorage.getUserById(userId).getLikes().remove(id);
-            log.debug("Пользователь c  ID: {}; удалил свой лайк фильму с ID: {}", userId, id);
-        } else {
-            throw new ValidationException("Вы не ставили лайк этому фильму");
-        }
+        filmStorage.deleteLikeFilm(id, userId);
     }
 
     public Film createFilm(Film film) {
@@ -67,7 +58,7 @@ public class FilmService {
         return filmStorage.createFilm(film);
     }
 
-    public ArrayList<Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 
@@ -78,7 +69,23 @@ public class FilmService {
         return filmStorage.updateFilm(film);
     }
 
-    public Film getFilmById(Integer id) {
-        return filmStorage.getFilmById(id);
+    public Film getFilmById(Integer filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    public List<Genre> getAllGenres() {
+        return genreStorage.getAllGenres();
+    }
+
+    public Genre getGenreById(Integer genreId) {
+        return genreStorage.getGenreById(genreId);
+    }
+
+    public List<MPA> getAllMpa() {
+        return mpaStorage.getAllMpa();
+    }
+
+    public MPA getMpaById(Integer mpaId) {
+        return mpaStorage.getMpaById(mpaId);
     }
 }

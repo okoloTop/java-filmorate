@@ -1,17 +1,26 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @Component
+@Qualifier("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     protected int assignmentId = 0;
     protected HashMap<Integer, Film> films = new HashMap<>();
+
+    public static final Comparator<Film> FILM_COMPARATOR = Comparator.comparingInt(Film::getRate).reversed();
+
+    UserStorage userStorage;
 
     @Override
     public Film createFilm(Film film) {
@@ -52,4 +61,39 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
+    @Override
+    public void likeFilm(Integer id, Integer userId) {
+        Film film = getFilmById(id);
+        if (!userStorage.getUserById(userId).getLikes().contains(id)) {
+            film.setRate(film.getRate() + 1);
+            userStorage.getUserById(userId).getLikes().add(id);
+            log.debug("Пользователь c  ID: {}; удалил свой лайк фильму с ID: {}", userId, id);
+        } else {
+            throw new ValidationException("Вы уже ставили лайк этому фильму");
+        }
+    }
+
+    @Override
+    public List<Film> findAllPopular(Integer count) {
+        log.debug("Получен список самых популярных фильмов, размер списка COUNT: {};", count);
+        List<Film> popularFilm = getAllFilms();
+        popularFilm.sort(FILM_COMPARATOR);
+        if (count > popularFilm.size()) {
+            return popularFilm;
+        } else {
+            return popularFilm.subList(0, count);
+        }
+    }
+
+    @Override
+    public void deleteLikeFilm(Integer id, Integer userId) {
+        Film film = getFilmById(id);
+        if (userStorage.getUserById(userId).getLikes().contains(id)) {
+            film.setRate(film.getRate() - 1);
+            userStorage.getUserById(userId).getLikes().remove(id);
+            log.debug("Пользователь c  ID: {}; удалил свой лайк фильму с ID: {}", userId, id);
+        } else {
+            throw new ValidationException("Вы не ставили лайк этому фильму");
+        }
+    }
 }
